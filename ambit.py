@@ -17,8 +17,12 @@ def get_json_script() -> tuple:
         script: str = [s for s in get_json_files() if s == "script.json"][0]
         with open(script, 'r') as fp:
             return json.load(fp), True
+
     except IndexError as e:
         return "Unable to find a script.json file in this directory.", False
+
+    except json.JSONDecodeError as e:
+        return "Invalid JSON format!", False
 
 
 def display_outputs(script: dict):
@@ -32,3 +36,6 @@ def check_for_changes():
     if response[1]:
         json_code = response[0]
         display_outputs(json_code)
+
+    else:
+        print(f"An error occurred, error: {response[0]}")
