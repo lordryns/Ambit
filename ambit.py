@@ -3,6 +3,7 @@ import os
 
 is_running = True
 
+# this finds anything with a .json extenuating in the current directory
 
 def get_json_files() -> list['str']:
     current = os.getcwd()
@@ -12,6 +13,7 @@ def get_json_files() -> list['str']:
     return json_files
 
 
+# this specifically finds a script.json file to work with
 def get_json_script() -> tuple:
     try:
         script: str = [s for s in get_json_files() if s == "script.json"][0]
@@ -34,6 +36,7 @@ def display_outputs(script: dict):
         pass
 
 
+# this manages all the changes and should be called in a loop
 def check_for_changes():
     response = get_json_script()
     if response[1]:
