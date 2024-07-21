@@ -26,9 +26,12 @@ def get_json_script() -> tuple:
 
 
 def display_outputs(script: dict):
-    output = script["output"]
-    for out in output:
-        print(out)
+    try:
+        output = script["output"]
+        for out in output:
+            print(out)
+    except:
+        pass
 
 
 def check_for_changes():
