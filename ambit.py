@@ -1,7 +1,10 @@
 import json
 import os
+import threading
 
 is_running = True
+
+variables = {}
 
 # this finds anything with a .json extenuating in the current directory
 
@@ -27,17 +30,26 @@ def get_json_script() -> tuple:
         return "Invalid JSON format!", False
 
 
-def display_outputs(script: dict):
-    try:
-        output = script["output"]
-        for out in output:
-            print(out)
-    except: 
-        pass
+class Standard():
+    def __init__(self, script: dict):
+        self.script = script 
+
+    def display_outputs(self):
+        try:
+            outputs = self.script["output"]
+            for out in outputs:
+                print(out)
+        except Exception:
+            pass
 
 
-def check_for_variables(script: dict):
-    pass
+    def check_for_variables(self):
+        global variables
+        try:
+            variables = self.script["variables"]
+        except:
+            pass
+        
 
 
 
@@ -46,7 +58,8 @@ def check_for_changes():
     response = get_json_script()
     if response[1]:
         json_code = response[0]
-        display_outputs(json_code)
-        check_for_variables(json_code)
+        standard = Standard(json_code)
+        standard.check_for_variables()
+        standard.display_outputs()
     else:
         print(f"An error occurred, error: {response[0]}")
