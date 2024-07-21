@@ -38,7 +38,13 @@ class Standard():
         try:
             outputs = self.script["output"]
             for out in outputs:
-                print(out)
+                if str(out).startswith("$"):
+                    variable = out.removeprefix("$")
+                    if variable in variables:
+                        print(variables[variable])
+
+                else:
+                    print(out)
         except Exception:
             pass
 
@@ -49,9 +55,13 @@ class Standard():
             variables = self.script["variables"]
         except:
             pass
-        
+
+    
 
 
+    def execute_on_stack(self):
+        self.check_for_variables()
+        self.display_outputs()
 
 # this manages all the changes and should be called in a loop
 def check_for_changes():
@@ -59,7 +69,7 @@ def check_for_changes():
     if response[1]:
         json_code = response[0]
         standard = Standard(json_code)
-        standard.check_for_variables()
-        standard.display_outputs()
+        standard.execute_on_stack()
+        
     else:
         print(f"An error occurred, error: {response[0]}")
