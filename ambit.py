@@ -32,8 +32,13 @@ def display_outputs(script: dict):
         output = script["output"]
         for out in output:
             print(out)
-    except:
+    except: 
         pass
+
+
+def check_for_variables(script: dict):
+    pass
+
 
 
 # this manages all the changes and should be called in a loop
@@ -42,6 +47,6 @@ def check_for_changes():
     if response[1]:
         json_code = response[0]
         display_outputs(json_code)
-
+        check_for_variables(json_code)
     else:
         print(f"An error occurred, error: {response[0]}")
