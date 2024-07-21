@@ -4,6 +4,7 @@ import threading
 
 is_running = True
 
+json_code = {}
 variables = {}
 
 # this finds anything with a .json extenuating in the current directory
@@ -30,13 +31,29 @@ def get_json_script() -> tuple:
         return "Invalid JSON format!", False
 
 
+
+def refresh_script():
+    global json_code
+    while True:
+        response = get_json_script()
+        if response[1]:
+            json_code = response[0]
+        
+        else:
+            print(f"An error occurred, error: {response[0]}")
+
+
+# the standard class that manages everything
 class Standard():
     def __init__(self, script: dict):
         self.script = script 
 
-    def display_outputs(self):
+    def display_outputs(self, position=None):
         try:
-            outputs = self.script["output"]
+            if position is not None: 
+                outputs = self.script["output"]
+            else:
+                outputs = self.script[position]["output"]
             for out in outputs:
                 if str(out).startswith("$"):
                     variable = out.removeprefix("$")
@@ -56,7 +73,9 @@ class Standard():
         except:
             pass
 
-    
+    def update(self):
+        self.display_outputs("update")
+            
 
 
     def execute_on_stack(self):
@@ -64,12 +83,18 @@ class Standard():
         self.display_outputs()
 
 # this manages all the changes and should be called in a loop
-def check_for_changes():
-    response = get_json_script()
-    if response[1]:
-        json_code = response[0]
-        standard = Standard(json_code)
-        standard.execute_on_stack()
+
+def start():
+    threading.Thread(target=refresh_script, daemon=True).start()
+    
+    standard = Standard(json_code)
+    standard.execute_on_stack()
+
+    while True:
+        standard.update()
+    
         
-    else:
-        print(f"An error occurred, error: {response[0]}")
+    
+
+if __name__ == '__main__':
+    pass
