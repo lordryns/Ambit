@@ -1,0 +1,6 @@
+[
+    {
+        "$command": "get_ip",
+        "return": "STD"
+    }
+]

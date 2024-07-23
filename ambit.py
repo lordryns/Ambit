@@ -1,6 +1,6 @@
 import json
 import os
-import threading
+import threading, socket
 
 is_running = True
 
@@ -32,11 +32,42 @@ def get_json_script() -> tuple:
 
 
 
+class Standard:
+    def __init__(self, script: dict) -> None:
+        self.script = script 
+
+        self.get_user_ip()
+
+    def get_user_ip(self):
+        host_name = socket.gethostname()
+        ip = socket.gethostbyname(host_name)
+
+        try:
+            for script in self.script:
+                command = script["$command"].lower()
+                _return = script["return"].lower()
+
+                if command == "get_ip":
+                    if _return  == "std":
+                        print(ip)
+                    elif _return == "file":
+                        with open("ip.txt", 'w') as fp:
+                            fp.write(str(ip))
+                            
+                    else:
+                        print("Return type must either be STD or FILE.")
+
+        except Exception as e:
+            print(e)
+    
+
+
 def run_script():
     response = get_json_script()
 
     if response[1]:
         json_code = response[0]
+        Standard(json_code)
 
 
 
