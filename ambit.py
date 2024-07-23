@@ -22,24 +22,39 @@ def get_json_script() -> tuple:
     try:
         script: str = [s for s in get_json_files() if s == "script.json"][0]
         with open(script, 'r') as fp:
-            return json.load(fp), True
+            return json.load(fp), True, 0
 
     except IndexError as e:
-        return "Unable to find a script.json file in this directory.", False
+        return "Unable to find a script.json file in this directory.", False, 1
 
     except json.JSONDecodeError as e:
-        return "Invalid JSON format!", False
+        return "Invalid JSON format!", False, 2
 
 
 
-def refresh_script():
-    global json_code
+def run_script():
+    response = get_json_script()
+
+    if response[1]:
+        json_code = response[0]
+
+
+
+
+def main():
+    print('-'*15, end="")
+    print("Ambit v 1.0", end="")
+    print('-'*15)
     while True:
-        response = get_json_script()
-        if response[1]:
-            json_code = response[0]
+        command = input(">>").lower()
+        if command == 'exists':
+            if get_json_script()[2] in (0, 2):
+                print("True\n")
+            else: print("False\n")
         
-        else:
-            print(f"An error occurred, error: {response[0]}")
+        if command == 'run':
+            run_script()
 
 
+if __name__ == '__main__':
+    main()
