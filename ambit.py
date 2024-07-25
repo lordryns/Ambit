@@ -77,14 +77,18 @@ def main():
     print("Ambit v 1.0", end="")
     print('-'*15)
     while True:
-        command = input(">>").lower()
+        command = input(">>").lower().replace(" ", "")
         if command == 'exists':
             if get_json_script()[2] in (0, 2):
                 print("True\n")
             else: print("False\n")
         
-        if command == 'run':
+        elif command == 'run':
             run_script()
+
+        else: 
+            print(f"{command} is not a valid command, use [help] to see the list of commands!")
+            
 
 
 if __name__ == '__main__':
