@@ -37,6 +37,7 @@ class Standard:
         self.script = script 
 
         self.get_user_ip()
+        self.get_device_name()
 
     def get_user_ip(self):
         host_name = socket.gethostname()
@@ -58,6 +59,28 @@ class Standard:
                         print("Return type must either be STD or FILE.")
 
         except Exception as e:
+            print(e)
+
+
+    def get_device_name(self):
+        host_name = socket.gethostname()
+
+        try:
+            for script in self.script:
+                command = script["$command"].lower()
+                _return = script["return"].lower()
+
+                if command == "get_device_name":
+                    if _return  == "std":
+                        print(host_name)
+                    elif _return == "file":
+                        with open("ip.txt", 'w') as fp:
+                            fp.write(str(host_name))
+                            
+                    else:
+                        print("Return type must either be STD or FILE.")
+
+        except Exception as e:   
             print(e)
     
 
