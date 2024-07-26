@@ -36,52 +36,52 @@ class Standard:
     def __init__(self, script: dict) -> None:
         self.script = script 
 
-        self.get_user_ip()
-        self.get_device_name()
-
-    def get_user_ip(self):
+        self.handle_processes()
+    def get_user_ip(self, command: str, _return: str):
         host_name = socket.gethostname()
         ip = socket.gethostbyname(host_name)
 
         try:
-            for script in self.script:
-                command = script["$command"].lower()
-                _return = script["return"].lower()
-
-                if command == "get_ip":
-                    if _return  == "std":
-                        print(ip)
-                    elif _return == "file":
-                        with open("ip.txt", 'w') as fp:
-                            fp.write(str(ip))
-                            
-                    else:
-                        print("Return type must either be STD or FILE.")
+            
+            if command == "get_ip":
+                if _return  == "std":
+                    print(ip)
+                elif _return == "file":
+                    with open("ip.txt", 'w') as fp:
+                        fp.write(str(ip))
+                        
+                else:
+                    print("Return type must either be STD or FILE.")
 
         except Exception as e:
             print(e)
 
 
-    def get_device_name(self):
+    def get_device_name(self, command: str, _return: str):
         host_name = socket.gethostname()
 
         try:
-            for script in self.script:
-                command = script["$command"].lower()
-                _return = script["return"].lower()
-
-                if command == "get_device_name":
-                    if _return  == "std":
-                        print(host_name)
-                    elif _return == "file":
-                        with open("ip.txt", 'w') as fp:
-                            fp.write(str(host_name))
-                            
-                    else:
-                        print("Return type must either be STD or FILE.")
+            if command == "get_device_name":
+                if _return  == "std":
+                    print(host_name)
+                elif _return == "file":
+                    with open("ip.txt", 'w') as fp:
+                        fp.write(str(host_name))
+                        
+                else:
+                    print("Return type must either be STD or FILE.")
 
         except Exception as e:   
             print(e)
+
+        
+    def handle_processes(self):
+        for script in self.script:
+            command = script["$command"].lower()
+            _return = script["return"].lower()
+
+            threading.Thread(target=self.get_device_name, args=(command, _return), daemon=True).start()
+            threading.Thread(target=self.get_user_ip, args=(command, _return), daemon=True).start()
     
 
 
@@ -100,7 +100,7 @@ def main():
     print("Ambit v 1.0", end="")
     print('-'*15)
     while True:
-        command = input(">>").lower().replace(" ", "")
+        command = input("~ ").lower().replace(" ", "")
         if command == 'exists':
             if get_json_script()[2] in (0, 2):
                 print("True\n")
@@ -108,6 +108,7 @@ def main():
         
         elif command == 'run':
             run_script()
+            print("\n")
 
         else: 
             print(f"{command} is not a valid command, use [help] to see the list of commands!")
