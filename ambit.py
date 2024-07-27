@@ -77,12 +77,17 @@ class Standard:
         
     def handle_processes(self):
         for script in self.script:
-            command = script["$command"].lower()
-            _return = script["return"].lower()
+            try:
+                command = script["$command"].lower()
+                _return = script["return"].lower()
 
-            
-            self.get_device_name(command=command, _return=_return)
-            self.get_user_ip(command=command, _return=_return)
+                
+                self.get_device_name(command=command, _return=_return)
+                self.get_user_ip(command=command, _return=_return)
+
+            except KeyError as e:
+                print(f"A key exception occured! Ambit returns: {e}; hint: Perharps you created an empty scope {{}}")
+
     
 
 
