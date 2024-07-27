@@ -86,7 +86,7 @@ class Standard:
                 self.get_user_ip(command=command, _return=_return)
 
             except KeyError as e:
-                print(f"A key exception occured! Ambit returns: {e}; hint: Perharps you created an empty scope {{}}")
+                print(f"A key exception occured! Ambit returns: {e}; hint: Perharps you created an empty scope {{}} or failed to include the '$command' or 'return' arguments.")
 
     
 
