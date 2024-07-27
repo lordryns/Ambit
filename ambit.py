@@ -80,8 +80,9 @@ class Standard:
             command = script["$command"].lower()
             _return = script["return"].lower()
 
-            threading.Thread(target=self.get_device_name, args=(command, _return), daemon=True).start()
-            threading.Thread(target=self.get_user_ip, args=(command, _return), daemon=True).start()
+            
+            self.get_device_name(command=command, _return=_return)
+            self.get_user_ip(command=command, _return=_return)
     
 
 
