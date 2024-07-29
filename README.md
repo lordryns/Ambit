@@ -8,7 +8,7 @@ An interpreterish type of program that checks for changes in json and performs t
 
 Every command goes within the general scope.
 
-```[
+`[
 ]`
 
 
