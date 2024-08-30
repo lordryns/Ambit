@@ -1,125 +1,71 @@
-import json
 import os
-import threading, socket
-
-is_running = True
-
-json_code = {}
-variables = {}
-
-# this finds anything with a .json extenuating in the current directory
-
-def get_json_files() -> list['str']:
-    current = os.getcwd()
-    all_files = [f for f in os.listdir(current) if os.path.isfile(os.path.join(current, f))]
-    json_files = [j for j in all_files if j.split(".")[-1] == "json"]
-
-    return json_files
-
-
-# this specifically finds a script.json file to work with
-def get_json_script() -> tuple:
-    try:
-        script: str = [s for s in get_json_files() if s == "script.json"][0]
-        with open(script, 'r') as fp:
-            return json.load(fp), True, 0
-
-    except IndexError as e:
-        return "Unable to find a script.json file in this directory.", False, 1
-
-    except json.JSONDecodeError as e:
-        return "Invalid JSON format!", False, 2
+import click
+import pyautogui as pg 
+from stashdb import DB 
+import json
 
 
 
-class Standard:
-    def __init__(self, script: dict) -> None:
-        self.script = script 
-
-        self.handle_processes()
-    def get_user_ip(self, command: str, _return: str):
-        host_name = socket.gethostname()
-        ip = socket.gethostbyname(host_name)
-
+class Compiler:
+    def __init__(self, script_path) -> None:
+        self.script_path = script_path
+        self.format_script()
+        self.run_script()
+    
+    def read_script(self) -> list | None:
         try:
-            
-            if command == "get_ip":
-                if _return  == "std":
-                    print(ip)
-                elif _return == "file":
-                    with open("ip.txt", 'w') as fp:
-                        fp.write(str(ip))
-                        
-                else:
-                    print("Return type must either be STD or FILE.")
-
+            with open(self.script_path, 'r') as f:
+                return json.load(f)
         except Exception as e:
-            print(e)
-
-
-    def get_device_name(self, command: str, _return: str):
-        host_name = socket.gethostname()
-
-        try:
-            if command == "get_device_name":
-                if _return  == "std":
-                    print(host_name)
-                elif _return == "file":
-                    with open("ip.txt", 'w') as fp:
-                        fp.write(str(host_name))
-                        
-                else:
-                    print("Return type must either be STD or FILE.")
-
-        except Exception as e:   
-            print(e)
-
+            click.secho(f"Error: Could not read script, [invalid syntax]. err: {str(e)}", fg="red")
+            return None
         
-    def handle_processes(self):
-        for script in self.script:
-            try:
-                command = script["$command"].lower()
-                _return = script["return"].lower()
+    
+    def format_script(self) -> None:
+        script = self.read_script()
+        if script is not None:
+            with open(self.script_path, 'w') as f:
+                json.dump(script, f, indent=4, sort_keys=True)
 
-                
-                self.get_device_name(command=command, _return=_return)
-                self.get_user_ip(command=command, _return=_return)
-
-            except KeyError as e:
-                print(f"A key exception occured! Ambit returns: {e}; hint: Perharps you created an empty scope {{}} or failed to include the '$command' or 'return' arguments.")
-
+    
+    def run_script(self) -> bool:
+        script = self.read_script()
+        if script is not None:
+            for i in range(len(script)):
+                block = script[i]
+                if self.check_for_command(block):
+                    ...
+                else:
+                   click.secho(f"Error: Each block must contain a command parameter, missing at block {i + 1}", fg="red") 
+    
+    def check_for_command(self, block):
+        if "command" in block:
+            return True 
+        else:
+            return False
+        
+    
     
 
 
-def run_script():
-    response = get_json_script()
-
-    if response[1]:
-        json_code = response[0]
-        Standard(json_code)
-
-
-
-
-def main():
-    print('-'*15, end="")
-    print("Ambit v 1.0", end="")
-    print('-'*15)
-    while True:
-        command = input("~ ").lower().replace(" ", "")
-        if command == 'exists':
-            if get_json_script()[2] in (0, 2):
-                print("True\n")
-            else: print("False\n")
-        
-        elif command == 'run':
-            run_script()
-            print("\n")
-
-        else: 
-            print(f"{command} is not a valid command, use [help] to see the list of commands!")
-            
+@click.command()
+@click.argument("path", type=str)
+def run(path):
+    if path.split('.')[-1] == "json":
+        if os.path.exists(path):
+            compiler = Compiler(path)
+        else:
+            click.secho(f"Error: Path -> '{path}' does not exist.", fg="red")
+    else:
+        click.secho("Error: File must be of type json", fg='red')
 
 
-if __name__ == '__main__':
-    main()
+@click.group()
+def cli():
+    """Ambit."""
+
+
+cli.add_command(run)
+
+if __name__ == "__main__":
+    cli()
