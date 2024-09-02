@@ -5,7 +5,6 @@ from stashdb import DB
 import json
 
 
-
 class Compiler:
     def __init__(self, script_path) -> None:
         self.script_path = script_path
@@ -34,9 +33,17 @@ class Compiler:
             for i in range(len(script)):
                 block = script[i]
                 if self.check_for_command(block):
-                    ...
+                    self.check_for_move_command(block)
                 else:
-                   click.secho(f"Error: Each block must contain a command parameter, missing at block {i + 1}", fg="red") 
+                   click.secho(f"Error: Each block must contain a command parameter, missing at block {i + 1}", fg="red")
+
+
+    def check_for_move_command(self, block):
+        if block["command"] == "move":
+            if "params" in block:
+                pass
+            else:
+                click.secho("Error: A params key is required.", fg="red")
     
     def check_for_command(self, block):
         if "command" in block:
@@ -45,7 +52,7 @@ class Compiler:
             return False
         
     
-    
+
 
 
 @click.command()
